@@ -21,7 +21,7 @@ const path = require('path')
 
 fs.readdirSync(__dirname).forEach(file => {
   if (fs.statSync(path.join(__dirname, file)).isDirectory()) {
-    app.use(rewrite('/' + file + '/*', '/' + file + '/index.html'))
+    app.use(rewrite('/' + file + '/*', '/' + file + '/index.html'))// 重写请求的url到index.html上，防止history模式下刷新404
   }
 })
 

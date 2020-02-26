@@ -10,7 +10,7 @@ module.exports = {
   },
 
   mode: process.env.NODE_ENV || 'development',
-
+  devtool: 'cheap-module-eval-source-map',
   entry: fs.readdirSync(__dirname).reduce((entries, dir) => {
     const fullDir = path.join(__dirname, dir)
     const entry = path.join(fullDir, 'app.js')
