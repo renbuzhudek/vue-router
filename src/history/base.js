@@ -242,16 +242,16 @@ export class History {
       })
     })
   }
-
+  // 更新路由
   updateRoute (route: Route) {
     this.current = route
     this.cb && this.cb(route)
   }
-
+  // 初始化监听的实现是空的
   setupListeners () {
     // Default implementation is empty
   }
-
+  // 清除所有监听
   teardownListeners () {
     this.listeners.forEach(cleanupListener => {
       cleanupListener()

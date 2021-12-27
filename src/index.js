@@ -17,7 +17,7 @@ import { AbstractHistory } from './history/abstract'
 import type { Matcher } from './create-matcher'
 
 import { isNavigationFailure, NavigationFailureType } from './util/errors'
-
+// router实例2个核心属性 matcher history
 export default class VueRouter {
   static install: () => void
   static version: string
@@ -49,10 +49,10 @@ export default class VueRouter {
     let mode = options.mode || 'hash'
     this.fallback =
       mode === 'history' && !supportsPushState && options.fallback !== false
-    if (this.fallback) {
+    if (this.fallback) { // 如果回退，则回退到哈希模式
       mode = 'hash'
     }
-    if (!inBrowser) {
+    if (!inBrowser) { // 非浏览器环境，抽象模式
       mode = 'abstract'
     }
     this.mode = mode
@@ -77,7 +77,7 @@ export default class VueRouter {
   match (raw: RawLocation, current?: Route, redirectedFrom?: Location): Route {
     return this.matcher.match(raw, current, redirectedFrom)
   }
-
+  // 当前路由
   get currentRoute (): ?Route {
     return this.history && this.history.current
   }
@@ -92,7 +92,7 @@ export default class VueRouter {
 
     this.apps.push(app)
 
-    // set up app destroyed handler
+    // set up app destroyed handler  设置app销毁回调
     // https://github.com/vuejs/vue-router/issues/2639
     app.$once('hook:destroyed', () => {
       // clean out app from this.apps array once destroyed
@@ -101,7 +101,7 @@ export default class VueRouter {
       // ensure we still have a main app or null if no apps
       // we do not release the router so it can be reused
       if (this.app === app) this.app = this.apps[0] || null
-
+      // 清除事件监听
       if (!this.app) {
         // clean up event listeners
         // https://github.com/vuejs/vue-router/issues/2341
@@ -109,7 +109,7 @@ export default class VueRouter {
       }
     })
 
-    // main app previously initialized
+    // main app previously initialized 已经初始化过的主应用程序退出，因为不需要设置新的历史侦听器
     // return as we don't need to set up new history listener
     if (this.app) {
       return
@@ -118,8 +118,9 @@ export default class VueRouter {
     this.app = app
 
     const history = this.history
-
+    // 如果是 history模式或者hash模式
     if (history instanceof HTML5History || history instanceof HashHistory) {
+      // 初始化滚动回调
       const handleInitialScroll = routeOrError => {
         const from = history.current
         const expectScroll = this.options.scrollBehavior
@@ -128,7 +129,7 @@ export default class VueRouter {
         if (supportsScroll && 'fullPath' in routeOrError) {
           handleScroll(this, routeOrError, from, false)
         }
-      }
+      }// 初始化侦听器和初始化滚动
       const setupListeners = routeOrError => {
         history.setupListeners()
         handleInitialScroll(routeOrError)
@@ -139,7 +140,7 @@ export default class VueRouter {
         setupListeners
       )
     }
-
+    // history设置监听，对app设置 _route 属性
     history.listen(route => {
       this.apps.forEach(app => {
         app._route = route
@@ -166,7 +167,7 @@ export default class VueRouter {
   onError (errorCb: Function) {
     this.history.onError(errorCb)
   }
-
+  // 只传 location 时返回promise,如果传2,3个参数则没有返回值 onComplete 导航成功完成回调 onAbort 导航终止回调
   push (location: RawLocation, onComplete?: Function, onAbort?: Function) {
     // $flow-disable-line
     if (!onComplete && !onAbort && typeof Promise !== 'undefined') {
@@ -200,7 +201,7 @@ export default class VueRouter {
   forward () {
     this.go(1)
   }
-
+  // 获取to路由匹配上的组件
   getMatchedComponents (to?: RawLocation | Route): Array<any> {
     const route: any = to
       ? to.matched
@@ -219,7 +220,7 @@ export default class VueRouter {
       })
     )
   }
-
+  // 解析目标位置
   resolve (
     to: RawLocation,
     current?: Route,
@@ -247,7 +248,7 @@ export default class VueRouter {
       resolved: route
     }
   }
-
+  // 添加动态路由
   addRoutes (routes: Array<RouteConfig>) {
     this.matcher.addRoutes(routes)
     if (this.history.current !== START) {
@@ -255,7 +256,7 @@ export default class VueRouter {
     }
   }
 }
-
+// 注册钩子，返回一个取消监听的函数
 function registerHook (list: Array<any>, fn: Function): Function {
   list.push(fn)
   return () => {
@@ -263,7 +264,7 @@ function registerHook (list: Array<any>, fn: Function): Function {
     if (i > -1) list.splice(i, 1)
   }
 }
-
+// 创建一个路由地址，根据mode添加#号
 function createHref (base: string, fullPath: string, mode) {
   var path = mode === 'hash' ? '#' + fullPath : fullPath
   return base ? cleanPath(base + '/' + path) : path

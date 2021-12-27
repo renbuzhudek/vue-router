@@ -6,7 +6,7 @@ const Time =
   inBrowser && window.performance && window.performance.now
     ? window.performance
     : Date
-
+// 生成状态key,利用时间戳保留3为有效小数
 export function genStateKey (): string {
   return Time.now().toFixed(3)
 }
