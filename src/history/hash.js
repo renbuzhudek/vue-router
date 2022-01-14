@@ -19,6 +19,7 @@ export class HashHistory extends History {
 
   // this is delayed until the app mounts
   // to avoid the hashchange listener being fired too early
+  // 为了避免hashchange侦听器过早启动，这将延迟到应用程序挂载会后才初始化监听路由事件
   setupListeners () {
     if (this.listeners.length > 0) {
       return
@@ -31,7 +32,7 @@ export class HashHistory extends History {
     if (supportsScroll) {
       this.listeners.push(setupScroll())
     }
-
+    // 监听路由变化的回调函数
     const handleRoutingEvent = () => {
       const current = this.current
       if (!ensureSlash()) {
@@ -45,7 +46,7 @@ export class HashHistory extends History {
           replaceHash(route.fullPath)
         }
       })
-    }
+    }// 如果支持history模式，监听 popstate事件 否则监听 hashchange 事件
     const eventType = supportsPushState ? 'popstate' : 'hashchange'
     window.addEventListener(
       eventType,
@@ -85,19 +86,19 @@ export class HashHistory extends History {
   go (n: number) {
     window.history.go(n)
   }
-
+  // 确保 url ，   push为true时用push方法浏览器会新增一条记录，否则用 replace 替换记录
   ensureURL (push?: boolean) {
     const current = this.current.fullPath
-    if (getHash() !== current) {
+    if (getHash() !== current) { // 如果当前路由的hash值跟fullPath不通，替换为当前路由
       push ? pushHash(current) : replaceHash(current)
     }
   }
-
+  // 获取当前路由信息
   getCurrentLocation () {
     return getHash()
   }
 }
-
+// 检查回退,如果去掉base后当前路由不是 # 开头，repace当前路由为 base + '/#' + location
 function checkFallback (base) {
   const location = getLocation(base)
   if (!/^\/#/.test(location)) {
@@ -114,7 +115,7 @@ function ensureSlash (): boolean {
   replaceHash('/' + path)
   return false
 }
-
+// 获取当前路由的hash值
 export function getHash (): string {
   // We can't use window.location.hash here because it's not
   // consistent across browsers - Firefox will pre-decode it!
@@ -139,14 +140,14 @@ export function getHash (): string {
 
   return href
 }
-
+// 获取url, 就是拼接地址 http://xxx/xxx.html/# + path
 function getUrl (path) {
   const href = window.location.href
   const i = href.indexOf('#')
   const base = i >= 0 ? href.slice(0, i) : href
   return `${base}#${path}`
 }
-
+// 推入一条历史记录，如果支持history模式调用 window.history.pushState ,否则重定向
 function pushHash (path) {
   if (supportsPushState) {
     pushState(getUrl(path))
@@ -154,7 +155,7 @@ function pushHash (path) {
     window.location.hash = path
   }
 }
-
+//  替换当前历史记录，如果支持history模式调用 window.history.pushState ,否则重定向
 function replaceHash (path) {
   if (supportsPushState) {
     replaceState(getUrl(path))

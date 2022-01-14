@@ -140,7 +140,7 @@ export default class VueRouter {
         setupListeners
       )
     }
-    // history设置监听，对app设置 _route 属性
+    // history设置监听，每次路由更新时调用回调重新对app设置 _route 属性
     history.listen(route => {
       this.apps.forEach(app => {
         app._route = route

@@ -62,7 +62,7 @@ export class History {
   listen (cb: Function) {
     this.cb = cb
   }
-
+  // 监听 ready 事件，推入 readyCbs 数组
   onReady (cb: Function, errorCb: ?Function) {
     if (this.ready) {
       cb()
@@ -73,19 +73,19 @@ export class History {
       }
     }
   }
-
+  //  监听 error 事件
   onError (errorCb: Function) {
     this.errorCbs.push(errorCb)
   }
-
+  // 过渡到下一个路由
   transitionTo (
     location: RawLocation,
-    onComplete?: Function,
-    onAbort?: Function
+    onComplete?: Function, // 路由导航完成回调
+    onAbort?: Function // 路由导航被中断回调
   ) {
     let route
-    // catch redirect option https://github.com/vuejs/vue-router/issues/3201
-    try {
+    // catch redirect option https://github.com/vuejs/vue-router/issues/3201 捕获重定向选项
+    try { // 匹配路由 location
       route = this.router.match(location, this.current)
     } catch (e) {
       this.errorCbs.forEach(cb => {
@@ -93,26 +93,26 @@ export class History {
       })
       // Exception should still be thrown
       throw e
-    }
+    } // 确认过渡到路由 route
     this.confirmTransition(
       route,
-      () => {
+      () => { // 过渡成功回调
         const prev = this.current
-        this.updateRoute(route)
-        onComplete && onComplete(route)
-        this.ensureURL()
-        this.router.afterHooks.forEach(hook => {
+        this.updateRoute(route)// 更新路由对象 route
+        onComplete && onComplete(route) // 完成回调
+        this.ensureURL()// 确保修正url
+        this.router.afterHooks.forEach(hook => { // 执行全局的导航完成回调
           hook && hook(route, prev)
         })
 
-        // fire ready cbs once
+        // fire ready cbs once  调用首次的 ready 钩子
         if (!this.ready) {
           this.ready = true
           this.readyCbs.forEach(cb => {
             cb(route)
           })
         }
-      },
+      }, // 过渡失败回调
       err => {
         if (onAbort) {
           onAbort(err)
@@ -134,7 +134,7 @@ export class History {
       }
     )
   }
-
+  // 确认过渡路由 route
   confirmTransition (route: Route, onComplete: Function, onAbort?: Function) {
     const current = this.current
     const abort = err => {
@@ -155,7 +155,7 @@ export class History {
     }
     const lastRouteIndex = route.matched.length - 1
     const lastCurrentIndex = current.matched.length - 1
-    if (
+    if (// 如果要过渡的路由和当前路由相同，并且 最后一个下标值相同，并且最后一个路由记录也相同， 终止导航，并执行 error回调
       isSameRoute(route, current) &&
       // in the case the route map has been dynamically appended to
       lastRouteIndex === lastCurrentIndex &&
@@ -164,12 +164,12 @@ export class History {
       this.ensureURL()
       return abort(createNavigationDuplicatedError(current, route))
     }
-
+    // 解决队列，当前路由匹配的记录，和新的导航匹配的记录 转换为 updated, deactivated, activated 为需要执行对应事件的记录
     const { updated, deactivated, activated } = resolveQueue(
       this.current.matched,
       route.matched
     )
-
+    // 待执行钩子队列
     const queue: Array<?NavigationGuard> = [].concat(
       // in-component leave guards
       extractLeaveGuards(deactivated),
@@ -218,7 +218,7 @@ export class History {
         abort(e)
       }
     }
-
+    // 执行队列：  遍历queue执行iterator函数，完成后调用第三个参数函数
     runQueue(queue, iterator, () => {
       const postEnterCbs = []
       const isValid = () => this.current === route
@@ -242,7 +242,7 @@ export class History {
       })
     })
   }
-  // 更新路由
+  // 更新路由时，执行 cb回调
   updateRoute (route: Route) {
     this.current = route
     this.cb && this.cb(route)
@@ -259,7 +259,7 @@ export class History {
     this.listeners = []
   }
 }
-
+// 序列化base路径
 function normalizeBase (base: ?string): string {
   if (!base) {
     if (inBrowser) {
@@ -279,7 +279,7 @@ function normalizeBase (base: ?string): string {
   // remove trailing slash
   return base.replace(/\/$/, '')
 }
-
+// 解决待执行钩子的路由记录队列
 function resolveQueue (
   current: Array<RouteRecord>,
   next: Array<RouteRecord>
@@ -301,16 +301,16 @@ function resolveQueue (
     deactivated: current.slice(i)
   }
 }
-
+// 提取导航守卫  这里应该是抽取的组件级导航守卫
 function extractGuards (
-  records: Array<RouteRecord>,
-  name: string,
-  bind: Function,
-  reverse?: boolean
+  records: Array<RouteRecord>, // 路由记录数组
+  name: string, // 守卫钩子名称
+  bind: Function, // 绑定回调
+  reverse?: boolean // 是否反转队列
 ): Array<?Function> {
   const guards = flatMapComponents(records, (def, instance, match, key) => {
     const guard = extractGuard(def, name)
-    if (guard) {
+    if (guard) { // 如果钩子函数存在
       return Array.isArray(guard)
         ? guard.map(guard => bind(guard, instance, match, key))
         : bind(guard, instance, match, key)
@@ -318,7 +318,7 @@ function extractGuards (
   })
   return flatten(reverse ? guards.reverse() : guards)
 }
-
+// 提取组件构造函数上的钩子函数
 function extractGuard (
   def: Object | Function,
   key: string
@@ -329,15 +329,15 @@ function extractGuard (
   }
   return def.options[key]
 }
-
+// 提取并绑定 beforeRouteLeave 钩子
 function extractLeaveGuards (deactivated: Array<RouteRecord>): Array<?Function> {
   return extractGuards(deactivated, 'beforeRouteLeave', bindGuard, true)
 }
-
+//  提取并绑定 beforeRouteUpdate 钩子
 function extractUpdateHooks (updated: Array<RouteRecord>): Array<?Function> {
   return extractGuards(updated, 'beforeRouteUpdate', bindGuard)
 }
-
+// 如果实例存在，返回一个包装函数，绑定实例为上下文执行导航守卫；
 function bindGuard (guard: NavigationGuard, instance: ?_Vue): ?NavigationGuard {
   if (instance) {
     return function boundRouteGuard () {
@@ -345,7 +345,7 @@ function bindGuard (guard: NavigationGuard, instance: ?_Vue): ?NavigationGuard {
     }
   }
 }
-
+// 提取并绑定 beforeRouteEnter 钩子
 function extractEnterGuards (
   activated: Array<RouteRecord>,
   cbs: Array<Function>,
@@ -383,16 +383,16 @@ function bindEnterGuard (
     })
   }
 }
-
+// 如果实例存在调用回调， 否则轮询，延迟16毫秒
 function poll (
-  cb: any, // somehow flow cannot infer this is a function
+  cb: any, // somehow flow cannot infer this is a function 不知何故，flow无法推断这是一个函数
   instances: Object,
   key: string,
   isValid: () => boolean
 ) {
   if (
     instances[key] &&
-    !instances[key]._isBeingDestroyed // do not reuse being destroyed instance
+    !instances[key]._isBeingDestroyed // do not reuse being destroyed instance 不要重用正在销毁的实例
   ) {
     cb(instances[key])
   } else if (isValid()) {

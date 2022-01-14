@@ -6,18 +6,18 @@ import { resolveQuery } from './query'
 import { fillParams } from './params'
 import { warn } from './warn'
 import { extend } from './misc'
-
+// 序列化路由信息
 export function normalizeLocation (
   raw: RawLocation,
   current: ?Route,
   append: ?boolean,
   router: ?VueRouter
 ): Location {
-  let next: Location = typeof raw === 'string' ? { path: raw } : raw
+  let next: Location = typeof raw === 'string' ? { path: raw } : raw// 如果传入的是字符串，转成对象
   // named target 如果已经序列化，返回
   if (next._normalized) {
     return next
-  } else if (next.name) {
+  } else if (next.name) { // 如果设置了name属性，返回 next对象
     next = extend({}, raw)
     const params = next.params
     if (params && typeof params === 'object') {
@@ -26,7 +26,7 @@ export function normalizeLocation (
     return next
   }
 
-  // relative params 相对参数： 如果不传 next.path ， 并且传了params和当前路由
+  // relative params 相对参数： 如果没有 next.path属性 ， 并且拥有params属性，并且存在当前路由对象，说明序列化的路由就是当前路由，把current对象设置给next.params
   if (!next.path && next.params && current) {
     next = extend({}, next)
     next._normalized = true

@@ -4,13 +4,13 @@ import type VueRouter from '../index'
 import { stringifyQuery } from './query'
 
 const trailingSlashRE = /\/?$/
-
+//  创建 _route 对象
 export function createRoute (
   record: ?RouteRecord,
   location: Location,
-  redirectedFrom?: ?Location,
+  redirectedFrom?: ?Location, // 重定向的那个地址
   router?: VueRouter
-): Route {
+): Route { // 查询字符串
   const stringifyQuery = router && router.options.stringifyQuery
 
   let query: any = location.query || {}
@@ -26,14 +26,14 @@ export function createRoute (
     query,
     params: location.params || {},
     fullPath: getFullPath(location, stringifyQuery),
-    matched: record ? formatMatch(record) : []
+    matched: record ? formatMatch(record) : []// 匹配的路由记录数组，包含祖先路由记录
   }
   if (redirectedFrom) {
     route.redirectedFrom = getFullPath(redirectedFrom, stringifyQuery)
   }
   return Object.freeze(route)
 }
-
+// 深拷贝
 function clone (value) {
   if (Array.isArray(value)) {
     return value.map(clone)
@@ -47,12 +47,12 @@ function clone (value) {
     return value
   }
 }
-
+// 表示起始路由的状态
 // the starting route that represents the initial state
 export const START = createRoute(null, {
   path: '/'
 })
-
+// 格式化匹配记录，返回数组包含所有祖先记录
 function formatMatch (record: ?RouteRecord): Array<RouteRecord> {
   const res = []
   while (record) {
@@ -69,7 +69,7 @@ function getFullPath (
   const stringify = _stringifyQuery || stringifyQuery
   return (path || '/') + stringify(query) + hash
 }
-
+// 对比是否是同一个路由
 export function isSameRoute (a: Route, b: ?Route): boolean {
   if (b === START) {
     return a === b

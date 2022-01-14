@@ -84,7 +84,7 @@ export class HTML5History extends History {
     return getLocation(this.base)
   }
 }
-
+// 获取去掉基于 base 的 url ：例如当前路由： https://aaa.com/b/c , base="/b"  =>  "/c"
 export function getLocation (base: string): string {
   let path = decodeURI(window.location.pathname)
   if (base && path.toLowerCase().indexOf(base.toLowerCase()) === 0) {
