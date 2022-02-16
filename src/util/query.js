@@ -37,9 +37,9 @@ export function resolveQuery (
   }
   return parsedQuery
 }
-
+// 强制转换查询参数
 const castQueryParamValue = value => (value == null || typeof value === 'object' ? value : String(value))
-
+// 解析查询参数 '?a=1&b=2' => {a:1,b:2}
 function parseQuery (query: string): Dictionary<string> {
   const res = {}
 
@@ -65,7 +65,7 @@ function parseQuery (query: string): Dictionary<string> {
 
   return res
 }
-
+// 序列化查询参数 {a:1,b:2} => '?a=1&b=2'
 export function stringifyQuery (obj: Dictionary<string>): string {
   const res = obj
     ? Object.keys(obj)
