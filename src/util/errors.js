@@ -1,11 +1,11 @@
-// When changing thing, also edit router.d.ts
+// When changing thing, also edit router.d.ts 导航失败类型
 export const NavigationFailureType = {
-  redirected: 2,
-  aborted: 4,
-  cancelled: 8,
-  duplicated: 16
+  redirected: 2, // 重定向
+  aborted: 4, // 中止
+  cancelled: 8, // 取消
+  duplicated: 16 // 重复
 }
-
+// 创建一个导航重定向错误
 export function createNavigationRedirectedError (from, to) {
   return createRouterError(
     from,
@@ -16,7 +16,7 @@ export function createNavigationRedirectedError (from, to) {
     )}" via a navigation guard.`
   )
 }
-
+// 创建一个导航重复错误
 export function createNavigationDuplicatedError (from, to) {
   const error = createRouterError(
     from,
@@ -28,7 +28,7 @@ export function createNavigationDuplicatedError (from, to) {
   error.name = 'NavigationDuplicated'
   return error
 }
-
+// 创建一个导航取消错误
 export function createNavigationCancelledError (from, to) {
   return createRouterError(
     from,
@@ -39,7 +39,7 @@ export function createNavigationCancelledError (from, to) {
     }" with a new navigation.`
   )
 }
-
+// 创建一个导航中止错误
 export function createNavigationAbortedError (from, to) {
   return createRouterError(
     from,
@@ -50,7 +50,7 @@ export function createNavigationAbortedError (from, to) {
     }" via a navigation guard.`
   )
 }
-
+// 创建一个路由错误
 function createRouterError (from, to, type, message) {
   const error = new Error(message)
   error._isRouter = true
@@ -76,7 +76,7 @@ function stringifyRoute (to) {
 export function isError (err) {
   return Object.prototype.toString.call(err).indexOf('Error') > -1
 }
-
+// 导航是否失败
 export function isNavigationFailure (err, errorType) {
   return (
     isError(err) &&

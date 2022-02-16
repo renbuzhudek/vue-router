@@ -137,7 +137,7 @@ export class History {
   // 确认过渡路由 route
   confirmTransition (route: Route, onComplete: Function, onAbort?: Function) {
     const current = this.current
-    const abort = err => {
+    const abort = err => { // 中止回调
       // changed after adding errors with
       // https://github.com/vuejs/vue-router/pull/3047 before that change,
       // redirect and aborted navigation would produce an err == null
@@ -155,7 +155,7 @@ export class History {
     }
     const lastRouteIndex = route.matched.length - 1
     const lastCurrentIndex = current.matched.length - 1
-    if (// 如果要过渡的路由和当前路由相同，并且 最后一个下标值相同，并且最后一个路由记录也相同， 终止导航，并执行 error回调
+    if (// 如果要过渡的路由和当前路由相同，并且 最后一个下标值相同，并且最后一个路由记录也相同， 中止导航，并执行 error回调
       isSameRoute(route, current) &&
       // in the case the route map has been dynamically appended to
       lastRouteIndex === lastCurrentIndex &&
@@ -169,35 +169,36 @@ export class History {
       this.current.matched,
       route.matched
     )
-    // 待执行钩子队列
+    // 按照导航解析流程的待执行钩子队列
     const queue: Array<?NavigationGuard> = [].concat(
-      // in-component leave guards
+      // in-component leave guards 组件内置的leave守卫
       extractLeaveGuards(deactivated),
-      // global before hooks
+      // global before hooks  全局before守卫
       this.router.beforeHooks,
-      // in-component update hooks
+      // in-component update hooks 组件内置的update钩子
       extractUpdateHooks(updated),
-      // in-config enter guards
+      // in-config enter guards 路由配置上定义的 beforeEnter 守卫
       activated.map(m => m.beforeEnter),
-      // async components
+      // async components  解决异步组件
       resolveAsyncComponents(activated)
     )
-
+    // 缓存等待解决的路由对象
     this.pending = route
     const iterator = (hook: NavigationGuard, next) => {
-      if (this.pending !== route) {
+      if (this.pending !== route) { // 退出并中止导航
         return abort(createNavigationCancelledError(current, route))
       }
       try {
+        // 三个参数对应：to,from,next
         hook(route, current, (to: any) => {
           if (to === false) {
-            // next(false) -> abort navigation, ensure current URL
+            // next(false) -> abort navigation, ensure current URL 中止导航
             this.ensureURL(true)
             abort(createNavigationAbortedError(current, route))
           } else if (isError(to)) {
             this.ensureURL(true)
             abort(to)
-          } else if (
+          } else if (// 如果是字符串或传入path,name，中止当前导航，并导航到新的地址
             typeof to === 'string' ||
             (typeof to === 'object' &&
               (typeof to.path === 'string' || typeof to.name === 'string'))
@@ -210,7 +211,7 @@ export class History {
               this.push(to)
             }
           } else {
-            // confirm transition and pass on the value
+            // confirm transition and pass on the value 确认转换并传入值,迭代到队列的下一个守卫
             next(to)
           }
         })
@@ -218,20 +219,21 @@ export class History {
         abort(e)
       }
     }
-    // 执行队列：  遍历queue执行iterator函数，完成后调用第三个参数函数
+    // 执行队列：  遍历queue执行iterator函数，迭代完成后再调用第三个参数函数
     runQueue(queue, iterator, () => {
       const postEnterCbs = []
       const isValid = () => this.current === route
-      // wait until async components are resolved before
-      // extracting in-component enter guards
+      // wait until async components are resolved before  在解决异步组件之前请等待
+      // extracting in-component enter guards   抽取组件内置的 enter 守卫
       const enterGuards = extractEnterGuards(activated, postEnterCbs, isValid)
-      const queue = enterGuards.concat(this.router.resolveHooks)
+      const queue = enterGuards.concat(this.router.resolveHooks)  // 合并全局的 beforeResolve 守卫(全局解析钩子)
+      // 队列执行完成后，迭代新的队列包含： 组件内置的 enter 守卫和全局的 beforeResolve 守卫。
       runQueue(queue, iterator, () => {
         if (this.pending !== route) {
           return abort(createNavigationCancelledError(current, route))
         }
-        this.pending = null
-        onComplete(route)
+        this.pending = null // 重置 pending
+        onComplete(route)// 执行完成回调
         if (this.router.app) {
           this.router.app.$nextTick(() => {
             postEnterCbs.forEach(cb => {
@@ -376,6 +378,7 @@ function bindEnterGuard (
           // the instance may not have been registered at this time.
           // we will need to poll for registration until current route
           // is no longer valid.
+          // 如果是router-view组件包装的并且out-in过渡，这个实例现在可能还没有被注册，我们将需要轮询注册直到当前路由不再有效
           poll(cb, match.instances, key, isValid)
         })
       }

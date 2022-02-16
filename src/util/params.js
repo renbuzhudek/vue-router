@@ -3,11 +3,11 @@
 import { warn } from './warn'
 import Regexp from 'path-to-regexp'
 
-// $flow-disable-line
+// $flow-disable-line 正则表达式编译缓存对象
 const regexpCompileCache: {
   [key: string]: Function
 } = Object.create(null)
-
+// 返回参数填充后的path
 export function fillParams (
   path: string,
   params: ?Object,

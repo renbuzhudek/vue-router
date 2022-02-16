@@ -11,11 +11,11 @@ const commaRE = /%2C/g
 // - preserve commas
 const encode = str =>
   encodeURIComponent(str)
-    .replace(encodeReserveRE, encodeReserveReplacer)
-    .replace(commaRE, ',')
+    .replace(encodeReserveRE, encodeReserveReplacer) // 特殊字符 encodeURIComponent 函数无法编码，手动转换
+    .replace(commaRE, ',') // 还原逗号
 
 const decode = decodeURIComponent
-
+// 解决查询参数
 export function resolveQuery (
   query: ?string,
   extraQuery: Dictionary<string> = {},

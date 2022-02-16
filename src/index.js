@@ -147,7 +147,7 @@ export default class VueRouter {
       })
     })
   }
-
+  // 全局的导航守卫
   beforeEach (fn: Function): Function {
     return registerHook(this.beforeHooks, fn)
   }
@@ -167,7 +167,7 @@ export default class VueRouter {
   onError (errorCb: Function) {
     this.history.onError(errorCb)
   }
-  // 只传 location 时返回promise,如果传2,3个参数则没有返回值 onComplete 导航成功完成回调 onAbort 导航终止回调
+  // 只传 location 时返回promise,如果传2,3个参数则没有返回值 onComplete 导航成功完成回调 onAbort 导航中止回调
   push (location: RawLocation, onComplete?: Function, onAbort?: Function) {
     // $flow-disable-line
     if (!onComplete && !onAbort && typeof Promise !== 'undefined') {
