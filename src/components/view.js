@@ -1,6 +1,6 @@
 import { warn } from '../util/warn'
 import { extend } from '../util/misc'
-
+// 标记为函数式组件
 export default {
   name: 'RouterView',
   functional: true,
@@ -11,11 +11,12 @@ export default {
     }
   },
   render (_, { props, children, parent, data }) {
-    // used by devtools to display a router-view badge
+    // used by devtools to display a router-view badge 由devtools用于显示路由器视图标记
     data.routerView = true
-
     // directly use parent context's createElement() function
     // so that components rendered by router-view can resolve named slots
+    // 直接使用父上下文的createElement（）函数
+    // 这样，路由器视图呈现的组件就可以解析命名插槽
     const h = parent.$createElement
     const name = props.name
     const route = parent.$route
@@ -23,6 +24,7 @@ export default {
 
     // determine current view depth, also check to see if the tree
     // has been toggled inactive but kept-alive.
+    // 确定当前视图深度，同时检查树是否已切换为非活动状态，但仍保持活动状态。
     let depth = 0
     let inactive = false
     while (parent && parent._routerRoot !== parent) {
@@ -35,9 +37,10 @@ export default {
       }
       parent = parent.$parent
     }
-    data.routerViewDepth = depth
+    data.routerViewDepth = depth // 标记路由视图深度
 
     // render previous view if the tree is inactive and kept-alive
+    // 如果树处于非活动状态并保持活动状态，则渲染上一个视图
     if (inactive) {
       const cachedData = cache[name]
       const cachedComponent = cachedData && cachedData.component
@@ -58,16 +61,19 @@ export default {
     const component = matched && matched.components[name]
 
     // render empty node if no matched route or no config component
+    // 如果没有匹配的路由或配置组件，则渲染空节点
     if (!matched || !component) {
       cache[name] = null
       return h()
     }
 
-    // cache component
+    // cache component 缓存组件
     cache[name] = { component }
 
     // attach instance registration hook
     // this will be called in the instance's injected lifecycle hooks
+    // 附加实例注册挂钩
+    // 这将在实例的注入生命周期钩子中调用
     data.registerRouteInstance = (vm, val) => {
       // val could be undefined for unregistration
       const current = matched.instances[name]
@@ -81,12 +87,14 @@ export default {
 
     // also register instance in prepatch hook
     // in case the same component instance is reused across different routes
+    // 还可以在prepatch hook中注册实例,如果同一组件实例跨不同路径重用
     ;(data.hook || (data.hook = {})).prepatch = (_, vnode) => {
       matched.instances[name] = vnode.componentInstance
     }
 
     // register instance in init hook
     // in case kept-alive component be actived when routes changed
+    // 在init hook中注册实例,如果路由发生变化，保持活动状态的组件将被激活
     data.hook.init = (vnode) => {
       if (vnode.data.keepAlive &&
         vnode.componentInstance &&
@@ -97,7 +105,7 @@ export default {
     }
 
     const configProps = matched.props && matched.props[name]
-    // save route and configProps in cache
+    // save route and configProps in cache 在缓存中保存路由和 configProps
     if (configProps) {
       extend(cache[name], {
         route,
@@ -109,7 +117,7 @@ export default {
     return h(component, data, children)
   }
 }
-
+// 填充props到data中
 function fillPropsinData (component, data, route, configProps) {
   // resolve props
   let propsToPass = data.props = resolveProps(route, configProps)

@@ -3,7 +3,7 @@
 import { _Vue } from '../install'
 import { warn } from './warn'
 import { isError } from '../util/errors'
-
+// 解决异步组件
 export function resolveAsyncComponents (matched: Array<RouteRecord>): Function {
   return (to, from, next) => {
     let hasAsync = false
@@ -15,11 +15,11 @@ export function resolveAsyncComponents (matched: Array<RouteRecord>): Function {
       // assume it's an async component resolve function.
       // we are not using Vue's default async resolving mechanism because
       // we want to halt the navigation until the incoming component has been
-      // resolved.
+      // resolved. 如果是一个函数并且没有附加cid，假设是一个异步组件解析函数，我们不用那个Vue默认的异步解析机制因为我们想暂停导航直到传入的组件解决。
       if (typeof def === 'function' && def.cid === undefined) {
         hasAsync = true
         pending++
-
+        //
         const resolve = once(resolvedDef => {
           if (isESModule(resolvedDef)) {
             resolvedDef = resolvedDef.default
@@ -47,12 +47,12 @@ export function resolveAsyncComponents (matched: Array<RouteRecord>): Function {
         })
 
         let res
-        try {
+        try { // 传入resolve解决异步组件
           res = def(resolve, reject)
         } catch (e) {
           reject(e)
         }
-        if (res) {
+        if (res) { // 如果返回的是promise,调用then方法传入解析回调
           if (typeof res.then === 'function') {
             res.then(resolve, reject)
           } else {
@@ -69,7 +69,7 @@ export function resolveAsyncComponents (matched: Array<RouteRecord>): Function {
     if (!hasAsync) next()
   }
 }
-
+// 拉平组件
 export function flatMapComponents (
   matched: Array<RouteRecord>,
   fn: Function
@@ -82,7 +82,7 @@ export function flatMapComponents (
     ))
   }))
 }
-
+// 拉平数组项
 export function flatten (arr: Array<any>): Array<any> {
   return Array.prototype.concat.apply([], arr)
 }
@@ -98,7 +98,7 @@ function isESModule (obj) {
 // in Webpack 2, require.ensure now also returns a Promise
 // so the resolve/reject functions may get called an extra time
 // if the user uses an arrow function shorthand that happens to
-// return that Promise.
+// return that Promise. 执行一次
 function once (fn) {
   let called = false
   return function (...args) {

@@ -12,11 +12,11 @@ export function genStateKey (): string {
 }
 
 let _key: string = genStateKey()
-
+// 获取状态key
 export function getStateKey () {
   return _key
 }
-
+// 设置状态key
 export function setStateKey (key: string) {
   return (_key = key)
 }
