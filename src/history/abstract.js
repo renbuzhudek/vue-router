@@ -3,10 +3,10 @@
 import type Router from '../index'
 import { History } from './base'
 import { NavigationFailureType, isNavigationFailure } from '../util/errors'
-
+// 抽象模式
 export class AbstractHistory extends History {
-  index: number
-  stack: Array<Route>
+  index: number // 历史记录的位置，初始值是 -1
+  stack: Array<Route> // 历史记录的堆栈
 
   constructor (router: Router, base: ?string) {
     super(router, base)
@@ -56,7 +56,7 @@ export class AbstractHistory extends History {
       }
     )
   }
-
+// 获取当前路由，就是从堆栈中拿出当前位置的记录
   getCurrentLocation () {
     const current = this.stack[this.stack.length - 1]
     return current ? current.fullPath : '/'

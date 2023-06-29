@@ -10,7 +10,7 @@ export function install (Vue) {
   _Vue = Vue
 
   const isDef = v => v !== undefined
-
+// vue实例创建时，调用注册函数
   const registerInstance = (vm, callVal) => {
     let i = vm.$options._parentVnode
     if (isDef(i) && isDef(i = i.data) && isDef(i = i.registerRouteInstance)) {
