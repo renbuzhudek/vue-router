@@ -42,6 +42,8 @@ export class HashHistory extends History {
         if (supportsScroll) {
           handleScroll(this.router, route, current, true)
         }
+        //  路由过渡完成后，如果不支持 pushState事件，就执行replace替换当前历史记录.
+        // 感觉这里没啥意义吧，路由完成后，又去替换当前路由地址？ hashchange 事件不会再次触发的，因为没变化。虽然popstate事件会触发但跳过了popstate模式
         if (!supportsPushState) {
           replaceHash(route.fullPath)
         }
@@ -56,7 +58,7 @@ export class HashHistory extends History {
       window.removeEventListener(eventType, handleRoutingEvent)
     })
   }
-
+  // 导航到新地址，过渡完成后向历史记录添加一条记录，然后执行滚动回调
   push (location: RawLocation, onComplete?: Function, onAbort?: Function) {
     const { current: fromRoute } = this
     this.transitionTo(
@@ -69,7 +71,7 @@ export class HashHistory extends History {
       onAbort
     )
   }
-
+  // 导航到新地址，过渡完成后替换；历史记录，然后执行滚动
   replace (location: RawLocation, onComplete?: Function, onAbort?: Function) {
     const { current: fromRoute } = this
     this.transitionTo(
@@ -89,7 +91,7 @@ export class HashHistory extends History {
   // 确保 url ，   push为true时用push方法浏览器会新增一条记录，否则用 replace 替换记录
   ensureURL (push?: boolean) {
     const current = this.current.fullPath
-    if (getHash() !== current) { // 如果当前路由的hash值跟fullPath不通，替换为当前路由
+    if (getHash() !== current) { // 如果当前路由的hash值跟fullPath不同，替换为当前路由
       push ? pushHash(current) : replaceHash(current)
     }
   }

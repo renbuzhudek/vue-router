@@ -37,6 +37,7 @@ export function pushState (url?: string, replace?: boolean) {
       history.pushState({ key: setStateKey(genStateKey()) }, '', url)
     }
   } catch (e) {
+    // location.assgin 效果跟修改href差不多，加载新的文档
     window.location[replace ? 'replace' : 'assign'](url)
   }
 }

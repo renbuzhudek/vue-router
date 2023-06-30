@@ -15,7 +15,7 @@ export class HTML5History extends History {
 
     this._startLocation = getLocation(this.base)
   }
-
+  // 初始化监听路由popstate事件
   setupListeners () {
     if (this.listeners.length > 0) {
       return

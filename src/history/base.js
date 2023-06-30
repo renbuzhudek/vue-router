@@ -97,12 +97,12 @@ export class History {
     this.confirmTransition(
       route,
       () => { // 过渡成功回调
-        const prev = this.current
-        this.updateRoute(route)// 更新路由对象 route
+        const prev = this.current // 缓存当前路由
+        this.updateRoute(route)// 更新路由对象 this.current = route
         onComplete && onComplete(route) // 完成回调
         this.ensureURL()// 确保修正url
         this.router.afterHooks.forEach(hook => { // 执行全局的导航完成回调
-          hook && hook(route, prev)
+          hook && hook(route, prev)  // 参数既是 to, from
         })
 
         // fire ready cbs once  调用首次的 ready 钩子
@@ -134,7 +134,7 @@ export class History {
       }
     )
   }
-  // 确认过渡路由 route
+  // 确认过渡路由 route, onAbort 接 transitionTo 的第三个参数. push或replace不传第三个参数时onAbort是promise的reject函数，会在控制台抛出错误
   confirmTransition (route: Route, onComplete: Function, onAbort?: Function) {
     const current = this.current
     const abort = err => { // 中止回调
@@ -249,7 +249,7 @@ export class History {
     this.current = route
     this.cb && this.cb(route)
   }
-  // 初始化监听的实现是空的
+  // 初始化监听的默认实现是空的
   setupListeners () {
     // Default implementation is empty
   }

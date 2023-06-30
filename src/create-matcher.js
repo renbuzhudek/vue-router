@@ -158,7 +158,7 @@ export function createMatcher (
     if (record && record.redirect) { // 如果路由规则存在并且设置了重定向属性，构造为重定向的路由规则
       return redirect(record, redirectedFrom || location)
     }
-    if (record && record.matchAs) { // 如果路由规则存在并且 matchAs 存在，返回别名路由
+    if (record && record.matchAs) { // 如果路由规则存在并且 matchAs 存在(别名路由专有的属性)，返回别名路由
       return alias(record, location, record.matchAs)
     }// 最后才是正常创建路由规则
     return createRoute(record, location, redirectedFrom, router)

@@ -21,7 +21,7 @@ function requireAuth (to, from, next) {
 }
 
 const router = new VueRouter({
-  mode: 'history',
+  mode: 'hash',
   base: __dirname,
   routes: [
     { path: '/about', component: About },
@@ -35,7 +35,7 @@ const router = new VueRouter({
     }
   ]
 })
-
+window.router = router
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
